@@ -8,6 +8,12 @@ urls = [
     "http://rutor.info/torrent/890745/nadvoe-01-02-iz-09-2022-web-dl-1080p",
 ]
 
+class UrlTest:
+    def url_is_valid(urls):
+        for url in urls:
+            r = requests.get(url)
+            r_ok = r.ok
+            return r_ok
 
 class Parser:
     def animejoy_parse(urls):
@@ -18,7 +24,8 @@ class Parser:
                 blocks = soup.find_all("div", class_="titleup")
                 for block in blocks:
                     animejoy_title = block.find("h1", class_="h2 ntitle").get_text()
-                    return animejoy_title
+                    if animejoy_title not in '':
+                        return animejoy_title
 
     def rutor_parse(urls):
         for url in urls:
@@ -26,9 +33,11 @@ class Parser:
             soup = bs(r.text, "html.parser")
             if "rutor" in url:
                 rutor_title = soup.find("h1").get_text()
-                return rutor_title
+                if rutor_title not in '':    
+                    return rutor_title
 
 
 if __name__ == "__main__":
     print(Parser.animejoy_parse(urls))
     print(Parser.rutor_parse(urls))
+    UrlTest.url_is_valid(urls)
