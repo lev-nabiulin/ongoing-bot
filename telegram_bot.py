@@ -88,6 +88,7 @@ async def user_resource_choice(update: Update, context: ContextTypes.DEFAULT_TYP
     """Remember resource choice"""
     text = update.message.text
     context.user_data["choice"] = text
+    # TODO: log the platform
 
     await update.message.reply_text(f"platform is {text}. Please paste the URL to the title.")
     return TYPING_REPLY
@@ -98,6 +99,7 @@ async def received_information(update: Update, context: ContextTypes.DEFAULT_TYP
     text = update.message.text
     category = user_data["choice"]
     user_data[category] = text
+    # TODO: log the title
     # TODO: record new titile or use existing from titles table
     # TODO: record user's choice to subscriptions table
     del user_data["choice"]
