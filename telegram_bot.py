@@ -61,6 +61,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def user_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Look for user id in DB and subscribing, showing list of resources"""
+    #TODO: form keyboard string from resources table
     reply_keyboard = [["AnimeJoy", "RuTor","Cancel"]]
     user = update.message.from_user
     logger.info("User %s said %s, and has ID %s", user.first_name, update.message.text, user.id)
@@ -158,6 +159,7 @@ def main() -> None:
             ],
             USER_RESOURCE_CHOICE: [
                 MessageHandler(filters.Regex("^(AnimeJoy|RuTor)$"), user_resource_choice),
+                #TODO: form filters string from resources table
                 MessageHandler(filters.Regex("^Cancel$"), cancel)
             ],
             TYPING_REPLY: [
