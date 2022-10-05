@@ -1,4 +1,5 @@
 import logging
+import sys
 import sqlite_connector
 
 from telegram import __version__ as TG_VER
@@ -31,6 +32,18 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
+fname = "./token.txt"
+TOKEN = ""
+try:
+    f = open(fname, 'rb')
+except OSError:
+    print("Could not open/read Token file:", fname)
+    sys.exit()
+
+with f:
+    TOKEN = f.read().decode('UTF-8')
+    print(TOKEN)
 
 CHOOSING, USER_CHOICE, USER_RESOURCE_CHOICE, TYPING_REPLY = range(4)
 
@@ -146,40 +159,43 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 def main() -> None:
     """Run the bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("5704052447:AAEgJa-Hf0GUNRpAMrovcGCFSAeh7kBZqTM").build()
+    if TOKEN != '':
+        application = Application.builder().token(TOKEN).build()
+    
+        conv_handler = ConversationHandler(
+            entry_points=[CommandHandler("start", start),MessageHandler(filters.Regex("^Start over$"), user_choice)],
+            states={
+                CHOOSING: [
+                    MessageHandler(filters.Regex("^Done$"), done),
+                    MessageHandler(filters.Regex("^Start over$"), user_choice),
+                ],
+                USER_CHOICE: [
+                    MessageHandler(filters.Regex("^Yes$"), user_choice),
+                    MessageHandler(filters.Regex("^Cancel$"), cancel),
+                ],
+                USER_RESOURCE_CHOICE: [
+                    MessageHandler(filters.Regex("^(AnimeJoy|RuTor)$"), user_resource_choice),
+                    #TODO: form filters string from resources table
+                    MessageHandler(filters.Regex("^Cancel$"), cancel)
+                ],
+                TYPING_REPLY: [
+                    MessageHandler(
+                        filters.TEXT & ~(filters.COMMAND | filters.Regex("^Done$")),
+                        received_information,
+                    )
+                ]
+                
+            },
+            fallbacks=[CommandHandler("cancel", cancel)],
+        )
 
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start),MessageHandler(filters.Regex("^Start over$"), user_choice)],
-        states={
-            CHOOSING: [
-                MessageHandler(filters.Regex("^Done$"), done),
-                MessageHandler(filters.Regex("^Start over$"), user_choice),
-            ],
-            USER_CHOICE: [
-                MessageHandler(filters.Regex("^Yes$"), user_choice),
-                MessageHandler(filters.Regex("^Cancel$"), cancel),
-            ],
-            USER_RESOURCE_CHOICE: [
-                MessageHandler(filters.Regex("^(AnimeJoy|RuTor)$"), user_resource_choice),
-                #TODO: form filters string from resources table
-                MessageHandler(filters.Regex("^Cancel$"), cancel)
-            ],
-            TYPING_REPLY: [
-                MessageHandler(
-                    filters.TEXT & ~(filters.COMMAND | filters.Regex("^Done$")),
-                    received_information,
-                )
-            ]
-            
-        },
-        fallbacks=[CommandHandler("cancel", cancel)],
-    )
+        application.add_handler(conv_handler)
 
-    application.add_handler(conv_handler)
-
-    # Run the bot until the user presses Ctrl-C
-    application.run_polling()
-
+        # Run the bot until the user presses Ctrl-C
+        application.run_polling()
+    else:
+        print('No token – no bot.')
+        exit
 
 if __name__ == "__main__":
     main()
