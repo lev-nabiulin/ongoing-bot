@@ -42,8 +42,7 @@ except OSError:
     sys.exit()
 
 with f:
-    TOKEN = f.read().decode('UTF-8')
-    print(TOKEN)
+    TOKEN = f.read().decode('UTF-8').strip()
 
 CHOOSING, USER_CHOICE, USER_RESOURCE_CHOICE, TYPING_REPLY = range(4)
 
@@ -192,7 +191,7 @@ def main() -> None:
         # Run the bot until the user presses Ctrl-C
         application.run_polling()
     else:
-        print('No token – no bot.')
+        print('No token - no bot.')
         exit
 
 if __name__ == "__main__":
