@@ -4,8 +4,6 @@ from bs4 import BeautifulSoup as bs
 # Подключить бд.
 # Нужно бахнуть по ООП, с классами и всей херней.
 
-#test vetki
-
 
 urls = [
     "https://animejoy.ru/tv-serialy/2891-vremya-nindzya.html",
