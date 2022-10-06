@@ -60,6 +60,7 @@ def facts_to_str(user_data: Dict[str, str]) -> str:
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation and asks the user about their gender."""
+    # TODO: replace to /cancel command
     reply_keyboard = [["Yes", "Cancel"]]
 
     await update.message.reply_text(
@@ -79,7 +80,7 @@ async def user_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     for resource in  sqlite_connector.get_resources_names():
         resources.append(resource[0])
     resources.sort()
-    reply_keyboard = [resources]
+    reply_keyboard = [resources,["Cancel"]]
     user = update.message.from_user
     logger.info("User %s said %s, and has ID %s", user.first_name, update.message.text, user.id)
     users = sqlite_connector.get_telegram_ids()
@@ -107,7 +108,7 @@ async def user_resource_choice(update: Update, context: ContextTypes.DEFAULT_TYP
     context.user_data["choice"] = text
     user = update.message.from_user
     logger.info("User %s with id %s choosed the platform %s", user.first_name, user.id, text)
-
+    # TODO: add Cancel button
     await update.message.reply_text(f"Platform is {text}. Please paste the URL to the title.")
     return TYPING_REPLY
 
@@ -140,6 +141,7 @@ async def received_information(update: Update, context: ContextTypes.DEFAULT_TYP
         logger.info(
             "User %s with id %s provide us bad url %s. Returning to url enter.", user.first_name, user.id, text
         )
+        # TODO: add Cancel button
         await update.message.reply_text(f"URL you provided is malformed. Please enter correct one.")
         return TYPING_REPLY
 
