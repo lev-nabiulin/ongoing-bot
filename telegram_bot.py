@@ -89,7 +89,7 @@ async def user_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         
     else:
         write_result = sqlite_connector.write_telegram_id(user.id)
-        logger.info('New record: %s' % write_result)
+        logger.info('New ID recorded in DB: %s' % write_result)
         subscription_text = "Subscribing to notifications."
 
     logger.info("Listing resources for ID %s", user.id)
@@ -108,7 +108,7 @@ async def user_resource_choice(update: Update, context: ContextTypes.DEFAULT_TYP
     context.user_data["choice"] = text
     user = update.message.from_user
     logger.info("User %s with id %s choosed the platform %s", user.first_name, user.id, text)
-    # TODO: add Cancel button
+    # TODO: add Cancel button and URL placeholder
     await update.message.reply_text(f"Platform is {text}. Please paste the URL to the title.")
     return TYPING_REPLY
 
@@ -122,21 +122,51 @@ async def received_information(update: Update, context: ContextTypes.DEFAULT_TYP
     logger.info("User %s with id %s send us the link: %s", user.first_name, user.id, text)
     
     if validators.url(text):
-        # TODO: record new titile or use existing from titles table
+        urlcheck = sqlite_connector.get_title_by_url(text)
+        new_title_id = ''
+        if 1 == 1 and urlcheck is None: # check if url is from resource (me) and it can be added to DB (lev) 
+            resource = sqlite_connector.get_resource_id_by_name(category)
+            new_title_id = sqlite_connector.write_title(resource, text)
+            logger.info('New title recorded, ID is: %s' % new_title_id)
+        else:
+            logger.info("We already have %s in DB, ID is %s" % (urlcheck[2], urlcheck[0]))
+        user_id = sqlite_connector.get_user_id(user.id)[0]
+        subscriptions = sqlite_connector.get_user_subscriptions(user_id)
+        if subscriptions is None or urlcheck is None:
+            if (new_title_id != ""):
+                result_id = sqlite_connector.write_subscription(user_id, new_title_id)
+                logger.info("New subscription for newly added url recorded, ID is %s" % result_id)
+            else:
+                result_id = sqlite_connector.write_subscription(user_id, urlcheck[0])
+                logger.info("New subscription for existing url recorded, ID is %s" % result_id)
+            if "choice" in user_data:
+                del user_data["choice"]
+            await update.message.reply_text(
+                "Neat! Just so you know, this is what you already told me:"
+                f"{facts_to_str(user_data)}\nYour subscription to this title was created.",
+                reply_markup=markup,
+            )
 
-        # TODO: record user's choice to subscriptions table
-        del user_data["choice"]
+            user_data.clear()
 
-        await update.message.reply_text(
-            "Neat! Just so you know, this is what you already told me:"
-            f"{facts_to_str(user_data)}You can tell me more, or change your opinion"
-            " on something.",
-            reply_markup=markup,
-        )
+            return CHOOSING
+        else:
+            logger.info(
+                "User %s with id %s (internal ID %s) already got subscription to the link: %s", 
+                user.first_name, user.id, user_id, urlcheck[2]
+            )
+            del user_data["choice"]
+            # TODO: let user claim us about no notifications
+            await update.message.reply_text(
+                "You are already subscribed to"
+                f"{facts_to_str(user_data)}\nIf there is no notifications -"
+                " please let us know.",
+                reply_markup=markup,
+            )
 
-        user_data.clear()
+            user_data.clear()
 
-        return CHOOSING
+            return CHOOSING
     else:
         logger.info(
             "User %s with id %s provide us bad url %s. Returning to url enter.", user.first_name, user.id, text
