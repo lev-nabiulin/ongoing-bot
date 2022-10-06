@@ -7,9 +7,13 @@ def get_telegram_ids():
     cursor = connection.cursor()
     rows = cursor.execute("SELECT telegram_id FROM users").fetchall()
     cursor.close()
-    return rows[0]
+    if len(rows):
+        return rows[0]
+    else:
+        return rows
 
 def write_telegram_id(user_id):
+    cursor = connection.cursor()
     query = "INSERT INTO users (telegram_id) VALUES (%s)" % user_id
     cursor.execute(query)
     connection.commit()
