@@ -27,6 +27,8 @@ from telegram.ext import (
 
 from typing import Dict
 
+import validators
+
 # Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -73,17 +75,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def user_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Look for user id in DB and subscribing, showing list of resources"""
-    #TODO: form keyboard string from resources table
-    reply_keyboard = [["AnimeJoy", "RuTor","Cancel"]]
+    resources = []
+    for resource in  sqlite_connector.get_resources_names():
+        resources.append(resource[0])
+    resources.sort()
+    reply_keyboard = [resources]
     user = update.message.from_user
     logger.info("User %s said %s, and has ID %s", user.first_name, update.message.text, user.id)
     users = sqlite_connector.get_telegram_ids()
-
     if user.id in users:
         subscription_text = "You have already subscribed to notifications."
         
     else:
-        # TODO: user.id to sql
+        write_result = sqlite_connector.write_telegram_id(user.id)
+        logger.info('New record: %s' % write_result)
         subscription_text = "Subscribing to notifications."
 
     logger.info("Listing resources for ID %s", user.id)
@@ -100,9 +105,10 @@ async def user_resource_choice(update: Update, context: ContextTypes.DEFAULT_TYP
     """Remember resource choice"""
     text = update.message.text
     context.user_data["choice"] = text
-    # TODO: log the platform
+    user = update.message.from_user
+    logger.info("User %s with id %s choosed the platform %s", user.first_name, user.id, text)
 
-    await update.message.reply_text(f"platform is {text}. Please paste the URL to the title.")
+    await update.message.reply_text(f"Platform is {text}. Please paste the URL to the title.")
     return TYPING_REPLY
 
 async def received_information(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -111,19 +117,32 @@ async def received_information(update: Update, context: ContextTypes.DEFAULT_TYP
     text = update.message.text
     category = user_data["choice"]
     user_data[category] = text
-    # TODO: log the title
-    # TODO: record new titile or use existing from titles table
-    # TODO: record user's choice to subscriptions table
-    del user_data["choice"]
+    user = update.message.from_user
+    logger.info("User %s with id %s send us the link: %s", user.first_name, user.id, text)
+    
+    if validators.url(text):
+        # TODO: record new titile or use existing from titles table
 
-    await update.message.reply_text(
-        "Neat! Just so you know, this is what you already told me:"
-        f"{facts_to_str(user_data)}You can tell me more, or change your opinion"
-        " on something.",
-        reply_markup=markup,
-    )
+        # TODO: record user's choice to subscriptions table
+        del user_data["choice"]
 
-    return CHOOSING
+        await update.message.reply_text(
+            "Neat! Just so you know, this is what you already told me:"
+            f"{facts_to_str(user_data)}You can tell me more, or change your opinion"
+            " on something.",
+            reply_markup=markup,
+        )
+
+        user_data.clear()
+
+        return CHOOSING
+    else:
+        logger.info(
+            "User %s with id %s provide us bad url %s. Returning to url enter.", user.first_name, user.id, text
+        )
+        await update.message.reply_text(f"URL you provided is malformed. Please enter correct one.")
+        return TYPING_REPLY
+
 
 async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Display the gathered info and end the conversation."""
