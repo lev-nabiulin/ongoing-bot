@@ -132,41 +132,83 @@ async def received_information(update: Update, context: ContextTypes.DEFAULT_TYP
             logger.info("We already have %s in DB, ID is %s" % (urlcheck[2], urlcheck[0]))
         user_id = sqlite_connector.get_user_id(user.id)[0]
         subscriptions = sqlite_connector.get_user_subscriptions(user_id)
-        if subscriptions is None or urlcheck is None:
-            if (new_title_id != ""):
+        if subscriptions:
+            if urlcheck:
+                if urlcheck[0] in subscriptions:
+                    logger.info(
+                        "User %s with id %s (internal ID %s) already got subscription to the link: %s", 
+                        user.first_name, user.id, user_id, urlcheck[2]
+                    )
+                    del user_data["choice"]
+                    # TODO: let user claim us about no notifications
+                    await update.message.reply_text(
+                        "You are already subscribed to"
+                        f"{facts_to_str(user_data)}\nIf there is no notifications -"
+                        " please let us know.",
+                        reply_markup=markup,
+                    )
+
+                    user_data.clear()
+
+                    return CHOOSING
+                else:
+                    result_id = sqlite_connector.write_subscription(user_id, urlcheck[0])
+                    logger.info("New subscription for existing url recorded, ID is %s" % result_id)
+                    if "choice" in user_data:
+                        del user_data["choice"]
+                    await update.message.reply_text(
+                        "Neat! Just so you know, this is what you already told me:"
+                        f"{facts_to_str(user_data)}\nYour subscription to this title was created.",
+                        reply_markup=markup,
+                    )
+
+                    user_data.clear()
+
+                    return CHOOSING
+            else:
                 result_id = sqlite_connector.write_subscription(user_id, new_title_id)
                 logger.info("New subscription for newly added url recorded, ID is %s" % result_id)
-            else:
+                if "choice" in user_data:
+                    del user_data["choice"]
+                await update.message.reply_text(
+                    "Neat! Just so you know, this is what you already told me:"
+                    f"{facts_to_str(user_data)}\nYour subscription to this title was created.",
+                    reply_markup=markup,
+                )
+
+                user_data.clear()
+
+                return CHOOSING
+        else:
+            if urlcheck:
                 result_id = sqlite_connector.write_subscription(user_id, urlcheck[0])
                 logger.info("New subscription for existing url recorded, ID is %s" % result_id)
-            if "choice" in user_data:
-                del user_data["choice"]
-            await update.message.reply_text(
-                "Neat! Just so you know, this is what you already told me:"
-                f"{facts_to_str(user_data)}\nYour subscription to this title was created.",
-                reply_markup=markup,
-            )
+                if "choice" in user_data:
+                    del user_data["choice"]
+                await update.message.reply_text(
+                    "Neat! Just so you know, this is what you already told me:"
+                    f"{facts_to_str(user_data)}\nYour subscription to this title was created.",
+                    reply_markup=markup,
+                )
 
-            user_data.clear()
+                user_data.clear()
 
-            return CHOOSING
-        else:
-            logger.info(
-                "User %s with id %s (internal ID %s) already got subscription to the link: %s", 
-                user.first_name, user.id, user_id, urlcheck[2]
-            )
-            del user_data["choice"]
-            # TODO: let user claim us about no notifications
-            await update.message.reply_text(
-                "You are already subscribed to"
-                f"{facts_to_str(user_data)}\nIf there is no notifications -"
-                " please let us know.",
-                reply_markup=markup,
-            )
+                return CHOOSING
+            else:
+                result_id = sqlite_connector.write_subscription(user_id, new_title_id)
+                logger.info("New subscription for newly added url recorded, ID is %s" % result_id)
+                if "choice" in user_data:
+                    del user_data["choice"]
+                await update.message.reply_text(
+                    "Neat! Just so you know, this is what you already told me:"
+                    f"{facts_to_str(user_data)}\nYour subscription to this title was created.",
+                    reply_markup=markup,
+                )
 
-            user_data.clear()
+                user_data.clear()
 
-            return CHOOSING
+                return CHOOSING
+                      
     else:
         logger.info(
             "User %s with id %s provide us bad url %s. Returning to url enter.", user.first_name, user.id, text
@@ -184,7 +226,6 @@ async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         del user_data["choice"]
 
     await update.message.reply_text(
-        "Successfully subscribed.\n"
         "Until next time!",
         reply_markup=ReplyKeyboardMarkup(
             reply_keyboard, one_time_keyboard=True
