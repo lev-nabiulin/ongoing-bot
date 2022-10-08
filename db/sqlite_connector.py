@@ -5,7 +5,7 @@ cursor = connection.cursor()
 
 def get_telegram_ids():
     cursor = connection.cursor()
-    rows = cursor.execute("SELECT telegram_id FROM users").fetchall()
+    rows = cursor.execute("SELECT tg_id FROM users").fetchall()
     cursor.close()
     if rows:
         result = []
@@ -15,15 +15,15 @@ def get_telegram_ids():
     else:
         return rows
 
-def get_user_id(telegram_id):
+def get_user_id(tg_id):
     cursor = connection.cursor()
-    result = cursor.execute("SELECT id FROM users WHERE telegram_id=?", [telegram_id]).fetchone()
+    result = cursor.execute("SELECT id FROM users WHERE tg_id=?", [tg_id]).fetchone()
     cursor.close()
     return result
 
 def write_telegram_id(user_id):
     cursor = connection.cursor()
-    query = "INSERT INTO users (telegram_id) VALUES (%s)" % user_id
+    query = "INSERT INTO users (tg_id) VALUES (%s)" % user_id
     cursor.execute(query)
     connection.commit()
     inserted_id = cursor.lastrowid
@@ -64,9 +64,9 @@ def get_title_by_url(url):
     cursor.close()
     return result
 
-def write_title(from_resource, url):
+def write_title(res_id, url):
     cursor = connection.cursor()
-    query = "INSERT INTO titles (from_resource, url) VALUES (%s, '%s')" % (from_resource, url)
+    query = "INSERT INTO titles (res_id, url) VALUES (%s, '%s')" % (res_id, url)
     cursor.execute(query)
     connection.commit()
     inserted_id = cursor.lastrowid
@@ -87,7 +87,7 @@ def get_user_subscriptions(user_id):
 
 def get_user_subs_formated(user_id):
     cursor = connection.cursor()
-    rows = cursor.execute("SELECT 'Название: '||ifnull(t.name_rus,'?_?')||' | Name: '||ifnull(t.name_lat,'?_?')||char(10)||'Всего серий: '|| ifnull(t.ep_total,'?_?')||', ты посмотрел: '|| ifnull(t.ep_total,'?_?')||char(10)||'Время проверки: '|| ifnull(strftime('%d.%m.%Y %H:%M:%S',datetime(t.last_check_date, 'unixepoch')),'Не проверялось') name FROM subscriptions s, titles t WHERE t.id = s.title_id and s.user_id=?", [user_id]).fetchall()
+    rows = cursor.execute("SELECT 'Название: '||ifnull(t.name_rus,'?_?')||' | Name: '||ifnull(t.name_lat,'?_?')||char(10)||'Всего серий: '|| ifnull(t.ep_total,'?_?')||', ты посмотрел: '|| ifnull(t.ep_now,'?_?')||char(10)||'Время проверки: '|| ifnull(strftime('%d.%m.%Y %H:%M:%S',datetime(t.last_check_date, 'unixepoch')),'Не проверялось') name FROM subscriptions s, titles t WHERE t.id = s.title_id and s.user_id=?", [user_id]).fetchall()
     cursor.close()
     if rows:
         result = []
