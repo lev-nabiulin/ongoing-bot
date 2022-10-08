@@ -1,2 +1,2 @@
 # ongoing-bot
-Ahuenniy bot, dly bolee ahuennih pacanov
+This bot will help you to track ongoing shows.
