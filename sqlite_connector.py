@@ -36,6 +36,14 @@ def get_resources():
     cursor.close()
     return rows
 
+def get_resource(id):
+    cursor = connection.cursor()
+    result = cursor.execute("SELECT * FROM resources WHERE id=?", [id]).fetchone()
+    cursor.close()
+    # res_id = "".join([str(item) for item in result])
+    res = result
+    return res
+
 def get_resources_names():
     cursor = connection.cursor()
     rows = cursor.execute("SELECT name FROM resources").fetchall()
