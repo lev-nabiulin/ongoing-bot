@@ -1,4 +1,5 @@
 import logging
+from secrets import choice
 import sys
 import sqlite_connector
 
@@ -26,6 +27,8 @@ from telegram.ext import (
 )
 
 from typing import Dict
+
+from urllib.parse import urlparse
 
 import validators
 
@@ -123,6 +126,17 @@ async def received_information(update: Update, context: ContextTypes.DEFAULT_TYP
     
     if validators.url(text):
         # TODO: check if url correct for platform (me, don't forget mirrors) and it can be added to DB (lev) 
+        domain = urlparse(text).netloc
+        resource_id = sqlite_connector.get_resource_id_by_name(user_data["choice"])
+        platform_url = sqlite_connector.get_resource(resource_id)[2]
+        platform_domain = urlparse(platform_url).netloc
+        if domain != platform_domain:
+            logger.info(
+                "User %s with id %s provide us bad url %s. Domain mismatch. Returning to url enter.", user.first_name, user.id, text
+            )
+            # TODO: add Cancel button
+            await update.message.reply_text(f"URL you provided is not from this platform. Please enter correct one.")
+            return TYPING_REPLY
         if 1 == 1 and 2 == 2:
             urlcheck = sqlite_connector.get_title_by_url(text)
             new_title_id = ''
