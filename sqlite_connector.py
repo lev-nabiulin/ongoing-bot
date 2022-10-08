@@ -85,6 +85,23 @@ def get_user_subscriptions(user_id):
     else:
         return rows
 
+def get_user_subs_formated(user_id):
+    cursor = connection.cursor()
+    rows = cursor.execute("
+                          SELECT 'Название: '||ifnull(t.name_rus,'?_?')||' | Name: '||ifnull(t.name_lat,'?_?')||char(10)
+                          ||'Всего серий: '|| ifnull(t.ep_total,'?_?')||', ты посмотрел: '|| ifnull(t.ep_total,'?_?')||char(10)
+                          ||'Время проверки: '|| ifnull(strftime('%d.%m.%Y %H:%M:%S',datetime(t.last_check_date, 'unixepoch')),'Не проверялось')
+                          name FROM subscriptions s, titles t WHERE t.id = s.title_id and s.user_id=?
+                          ", [user_id]).fetchall()
+    cursor.close()
+    if rows:
+        result = []
+        for row in rows:
+            result.append(row[0])
+        return result
+    else:
+        return rows    
+
 def write_subscription(user, title):
     cursor = connection.cursor()
     query = "INSERT INTO subscriptions (user_id, title_id) VALUES (%s, '%s')" % (user, title)
