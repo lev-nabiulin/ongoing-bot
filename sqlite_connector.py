@@ -3,6 +3,12 @@ import sqlite3
 connection = sqlite3.connect("db.sqlite")
 cursor = connection.cursor()
 
+def get_admin_id():
+    cursor = connection.cursor()
+    result = cursor.execute("SELECT telegram_id FROM users WHERE admin=1").fetchone()
+    cursor.close()
+    return result[0]
+
 def get_telegram_ids():
     cursor = connection.cursor()
     rows = cursor.execute("SELECT telegram_id FROM users").fetchall()
