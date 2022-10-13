@@ -17,6 +17,7 @@ create table subscriptions (
 id integer primary key autoincrement not null,
 user_id integer not null,
 title_id integer not null,
+last_ep_notified integer default 0,
 FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
