@@ -3,7 +3,7 @@ id integer primary key autoincrement not null,
 name text not null,
 url text not null,
 logo blob,
-type text not null check(name='webviewer' and name='tracker'),
+type text not null check(type='webviewer' and type='tracker'),
 unique (name, url)
 );
 
