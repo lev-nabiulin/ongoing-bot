@@ -3,6 +3,12 @@ import sqlite3
 connection = sqlite3.connect("db.sqlite")
 cursor = connection.cursor()
 
+def get_admin_id():
+    cursor = connection.cursor()
+    result = cursor.execute("SELECT telegram_id FROM users WHERE admin=1").fetchone()
+    cursor.close()
+    return result[0]
+
 def get_telegram_ids():
     cursor = connection.cursor()
     rows = cursor.execute("SELECT telegram_id FROM users").fetchall()
@@ -72,6 +78,18 @@ def write_title(from_resource, url):
     inserted_id = cursor.lastrowid
     cursor.close()
     return inserted_id
+
+def get_subscriptions():
+    cursor = connection.cursor()
+    rows = cursor.execute("SELECT * FROM subscriptions").fetchall()
+    cursor.close()
+    # if rows:
+    #     result = []
+    #     for row in rows:
+    #         result.append(row[0])
+    #     return result
+    # else:
+    return rows
 
 def get_user_subscriptions(user_id):
     cursor = connection.cursor()
