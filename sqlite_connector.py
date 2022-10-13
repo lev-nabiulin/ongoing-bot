@@ -79,6 +79,18 @@ def write_title(from_resource, url):
     cursor.close()
     return inserted_id
 
+def get_subscriptions():
+    cursor = connection.cursor()
+    rows = cursor.execute("SELECT * FROM subscriptions").fetchall()
+    cursor.close()
+    # if rows:
+    #     result = []
+    #     for row in rows:
+    #         result.append(row[0])
+    #     return result
+    # else:
+    return rows
+
 def get_user_subscriptions(user_id):
     cursor = connection.cursor()
     rows = cursor.execute("SELECT title_id FROM subscriptions WHERE user_id=?", [user_id]).fetchall()
