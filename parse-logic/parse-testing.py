@@ -23,12 +23,18 @@ class Parser:
         for url in urls:
             r = requests.get(url)
             soup = bs(r.text, "html.parser")
+            text_s = requests.get(url).text
+            sel = Selector(text=text_s)
             if "animejoy" in url:
                 blocks = soup.find_all("div", class_="titleup")
+                animejoy_year = sel.xpath(
+                    '//span[starts-with(text(),"Дата выпуска")]/following-sibling::text()'
+                ).get()
+                animejoy_year = animejoy_year.replace(u'\xa0c ', u'')
                 for block in blocks:
                     animejoy_title = block.find("h1", class_="h2 ntitle").get_text()
                     if animejoy_title not in "":
-                        return animejoy_title
+                        return animejoy_title, animejoy_year
 
     def rutor_parse(urls):
 
@@ -50,3 +56,7 @@ if __name__ == "__main__":
     print(Parser.animejoy_parse(urls))
     print(Parser.rutor_parse(urls))
     UrlTest.url_is_valid(urls)
+
+
+                                   
+        
