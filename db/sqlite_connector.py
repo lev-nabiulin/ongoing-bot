@@ -1,6 +1,6 @@
 import sqlite3
 
-connection = sqlite3.connect("db.sqlite")
+connection = sqlite3.connect("db/ongoing.db")
 cursor = connection.cursor()
 
 def get_admin_id():
