@@ -3,14 +3,14 @@ id integer primary key autoincrement not null,
 name text not null,
 url text not null,
 logo blob,
-type text not null check(type='webviewer' and type='tracker'),
+type text not null check(type='webviewer' or type='tracker'),
 unique (name, url)
 );
 
 create table users (
 id integer primary key autoincrement not null,
 tg_id integer not null unique,
-admin integer not null check(admin=1 and admin=0) default 0
+admin integer not null check(admin=1 or admin=0) default 0
 );
 
 create table subscriptions (
