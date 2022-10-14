@@ -5,7 +5,7 @@ cursor = connection.cursor()
 
 def get_admin_id():
     cursor = connection.cursor()
-    result = cursor.execute("SELECT telegram_id FROM users WHERE admin=1").fetchone()
+    result = cursor.execute("SELECT tg_id FROM users WHERE admin=1").fetchone()
     cursor.close()
     return result[0]
 

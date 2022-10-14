@@ -3,8 +3,7 @@ import json
 import logging
 from secrets import choice
 import sys
-import sqlite_connector
-
+import db.sqlite_connector as sqlite_connector
 from telegram import __version__ as TG_VER
 
 try:
