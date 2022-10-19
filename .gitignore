@@ -130,5 +130,5 @@ dmypy.json
 
 # Bot dev
 db.sqlite
-*.sqlite3
-*.sqlite
+db/ongoing.db
+token.txt
