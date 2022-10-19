@@ -1,4 +1,7 @@
-import sqlite_connector
+import db.sqlite_connector as sqlite_connector
+import itertools
+from parse_logic import parse_testing
+
 
 class my_dictionary(dict):
  
@@ -10,8 +13,14 @@ class my_dictionary(dict):
   def add(self, key, value):
     self[key] = value
 
-def check_series(title):
-    pass
+def check_series(sub_dict):
+    flat_list = []
+    for user in sub_dict:
+        flat_list.append(sub_dict[user])
+    titles_for_check = [*set(list(itertools.chain.from_iterable(flat_list)))]
+    return parse_testing.Parser.new_series(titles_for_check)
+
+
 
 def check_titles():
     subscriptions = sqlite_connector.get_subscriptions()
@@ -22,9 +31,8 @@ def check_titles():
         titles = []
         for sub in subscriptions:
             if sub[1] is user:
-
                 titles.append(sub[2])
         sub_dict.add(user, titles)
-    print(sub_dict)
-        
+    print(check_series(sub_dict))
+   
 check_titles()

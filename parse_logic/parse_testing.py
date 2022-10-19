@@ -28,6 +28,11 @@ class Parser:
                 rutor_title = soup.find("h1").get_text()
                 return rutor_title
 
+    def new_series(list):
+        list = [1, 2, 3, 4, 5, 6, 7, 8]
+        dict = {1: 3, 2: 5, 3: 4, 4: 1, 5: 8, 6: 24, 7: 15, 8: 2}
+        return dict
+
 
 if __name__ == "__main__":
     print(Parser.animejoy_parse(urls))
