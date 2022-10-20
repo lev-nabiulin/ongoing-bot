@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup as bs
 from parsel import Selector
 
-from db.sqlite_connector import get_title_by_id
+import db.sqlite_connector as sqlite_connector
 
 # def new_series(list):
 #    list = [1, 2, 3, 4, 5, 6, 7, 8]
@@ -63,5 +63,5 @@ if __name__ == "__main__":
     print(Parser.animejoy_parse(urls))
     print(Parser.rutor_parse(urls))
     UrlTest.url_is_valid(urls)
-    print(get_title_by_id(1))
+    print(sqlite_connector.get_title_by_id(1)[2])
 
