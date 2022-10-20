@@ -64,6 +64,12 @@ def get_resource_id_by_name(name):
     res_id = result[0]
     return res_id
 
+def get_title_by_id(id):
+    cursor = connection.cursor()
+    result = cursor.execute("SELECT * FROM titles WHERE id=?", [id]).fetchone()
+    cursor.close()
+    return result    
+
 def get_title_by_url(url):
     cursor = connection.cursor()
     result = cursor.execute("SELECT * FROM titles WHERE url=?", [url]).fetchone()
