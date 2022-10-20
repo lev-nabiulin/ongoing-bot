@@ -4,6 +4,12 @@ from parsel import Selector
 
 import db.sqlite_connector as sqlite_connector
 
+#TODO:
+# 1. доставать в лист урлов из бд
+# 2. попробовать достать серию с помощью regex
+# 3. че такое BLOB?
+
+
 # def new_series(list):
 #    list = [1, 2, 3, 4, 5, 6, 7, 8]
 #    dict = {1: 3, 2: 5, 3: 4, 4: 1, 5: 8, 6: 24, 7: 15, 8: 2}
