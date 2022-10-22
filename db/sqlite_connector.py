@@ -76,6 +76,12 @@ def get_title_by_url(url):
     cursor.close()
     return result
 
+def get_title_urls():
+    cursor = connection.cursor()
+    rows = cursor.execute("SELECT url FROM titles").fetchall()
+    cursor.close()
+    return rows
+
 def write_title(res_id, url):
     cursor = connection.cursor()
     query = "INSERT INTO titles (res_id, url) VALUES (%s, '%s')" % (res_id, url)
