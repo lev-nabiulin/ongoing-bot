@@ -21,6 +21,7 @@ import db.sqlite_connector as sqlite_connector
 
 urls = sqlite_connector.get_title_urls()
 
+
 class UrlTest:
     def url_is_valid(urls):
         for url in urls:
@@ -37,7 +38,7 @@ class Parser:
 
         for url in urls:
             url = url[0]
-            
+
             text_s = requests.get(url).text
             sel = Selector(text=text_s)
             if "animejoy" in url:
@@ -45,9 +46,7 @@ class Parser:
                     '//span[starts-with(text(),"Дата выпуска")]/following-sibling::text()'
                 ).get()
                 release_year = animejoy_year.replace(u"\xa0c ", u"")
-                name_rus = sel.xpath(
-                    '//h1[@itemprop = "name"]/text()'
-                ).get()
+                name_rus = sel.xpath('//h1[@itemprop = "name"]/text()').get()
                 names_rus.append(name_rus)
                 release_years.append(release_year)
         return names_rus, release_years
