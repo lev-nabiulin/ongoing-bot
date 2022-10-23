@@ -1,6 +1,6 @@
 import db.sqlite_connector as sqlite_connector
 import itertools
-from parse_logic import parse_testing
+from . import parse_testing
 
 
 class my_dictionary(dict):
