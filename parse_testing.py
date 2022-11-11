@@ -7,11 +7,19 @@ import db.sqlite_connector as sqlite_connector
 
 # TODO:
 # попробовать достать серию с помощью regex
-# че такое BLOB? !!!
+#
+# record new episode number to db if episode number > titles.ep_now in db
+# record titles.last_check_date in unixtime after successful check
+#
+# че такое BLOB? !!! -> https://www.sqlite.org/datatype3.html
 # --->  <---
 # Достать:
 # name_lat
-# картинки BLOB
+# картинки BLOB -> https://www.twilio.com/blog/intro-multimedia-file-upload-python-sqlite3-database
+#
+# return dict = {titles.id: ep_now, ...} if new parsed titles.ep_now > current titles.ep_now,
+# else return empty dict,
+# when Parser.new_series([titles.id, ...]) is called outside parser
 
 
 # def new_series(list):

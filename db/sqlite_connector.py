@@ -130,7 +130,19 @@ def get_user_subs_formated(user_id):
             result.append(row[0])
         return result
     else:
-        return rows    
+        return rows
+
+def get_subscribers_by_title(title_id):
+    cursor = connection.cursor()
+    rows = cursor.execute("SELECT user_id FROM subscriptions where title_id=?", [title_id]).fetchall()
+    cursor.close()
+    if rows:
+        result = []
+        for row in rows:
+            result.append(row[0])
+        return result
+    else:
+        return rows
 
 def write_subscription(user, title):
     cursor = connection.cursor()
